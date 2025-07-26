@@ -1,0 +1,76 @@
+{% load form_filters %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart College Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 min-h-screen flex items-center justify-center">
+    <div class="bg-white p-10 rounded-2xl shadow-xl w-full max-w-md">
+        <h2 class="text-2xl font-bold text-center mb-6">Login to Smart College</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- Role Dropdown -->
+            <label class="block mb-2 font-semibold">Role</label>
+            {{ form.role|add_class:"w-full p-2 border border-gray-300 rounded-md" }}
+
+            <!-- Student Fields -->
+            <div id="student_fields" style="display: none;">
+                <label class="block mt-4 mb-2 font-semibold">Roll Number</label>
+                {{ form.roll_number|add_class:"w-full p-2 border border-gray-300 rounded-md" }}
+            </div>
+
+            <!-- Staff Fields -->
+            <div id="staff_fields" style="display: none;">
+                <label class="block mt-4 mb-2 font-semibold">Teacher ID</label>
+                {{ form.teacher_id|add_class:"w-full p-2 border border-gray-300 rounded-md" }}
+            </div>
+
+            <!-- Password (common) -->
+            <div id="password_field" style="display: none;">
+                <label class="block mt-4 mb-2 font-semibold">Password</label>
+                {{ form.password|add_class:"w-full p-2 border border-gray-300 rounded-md" }}
+            </div>
+
+            {% if error %}
+                <p class="text-red-600 mt-2">{{ error }}</p>
+            {% endif %}
+
+            <button type="submit" class="mt-6 w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">Login</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const roleSelect = document.querySelector('select[name="role"]');
+            const studentFields = document.getElementById('student_fields');
+            const staffFields = document.getElementById('staff_fields');
+            const passwordField = document.getElementById('password_field');
+
+            roleSelect.addEventListener('change', function () {
+                const role = this.value;
+
+                if (role === 'student') {
+                    studentFields.style.display = 'block';
+                    staffFields.style.display = 'none';
+                    passwordField.style.display = 'block';
+                } else if (role === 'staff') {
+                    studentFields.style.display = 'none';
+                    staffFields.style.display = 'block';
+                    passwordField.style.display = 'block';
+                } else if (role === 'admin') {
+                    window.location.href = '/admin/';
+                } else {
+                    studentFields.style.display = 'none';
+                    staffFields.style.display = 'none';
+                    passwordField.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

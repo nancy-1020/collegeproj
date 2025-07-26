@@ -1,0 +1,213 @@
+{% extends 'staffdash/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-calendar-alt me-2"></i> Attendance Management
+        </h1>
+        <div class="d-flex align-items-center">
+            <span class="me-3">Welcome, {{ request.user.get_full_name }}</span>
+            <div class="avatar bg-primary text-white rounded-circle p-2">
+                {{ request.user.first_name|first }}{{ request.user.last_name|first }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stat-card p-3 bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-2">Total Students</h6>
+                        <h3 class="mb-0">{{ stats.total_students }}</h3>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 p-3 rounded">
+                        <i class="fas fa-users text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card p-3 bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-2">Attendance %</h6>
+                        <h3 class="mb-0">{{ stats.attendance_percentage }}%</h3>
+                    </div>
+                    <div class="bg-success bg-opacity-10 p-3 rounded">
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card p-3 bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-2">Late Today</h6>
+                        <h3 class="mb-0">{{ stats.late_count }}</h3>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 p-3 rounded">
+                        <i class="fas fa-clock text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card p-3 bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-2">Absent Today</h6>
+                        <h3 class="mb-0">{{ stats.absent_count }}</h3>
+                    </div>
+                    <div class="bg-danger bg-opacity-10 p-3 rounded">
+                        <i class="fas fa-times-circle text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Today's Attendance ({{ today }})</h6>
+            <div>
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#markAttendanceModal">
+                    <i class="fas fa-plus me-1"></i> Mark Attendance
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="attendanceTable" width="100%" cellspacing="0">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Roll No</th>
+                            <th>Student Name</th>
+                            <th>Class</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in attendance_data %}
+                        <tr>
+                            <td>{{ record.student.roll_no }}</td>
+                            <td>{{ record.student.full_name }}</td>
+                            <td>{{ record.student.class_name }}</td>
+                            <td>
+                                <span class="badge rounded-pill 
+                                    {% if record.status == 'present' %}present-badge
+                                    {% elif record.status == 'late' %}late-badge
+                                    {% else %}absent-badge{% endif %}">
+                                    {{ record.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary edit-attendance" 
+                                    data-id="{{ record.id }}"
+                                    data-student="{{ record.student.id }}"
+                                    data-status="{{ record.status }}"
+                                    data-notes="{{ record.notes|default:'' }}">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">No attendance records for today</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mark Attendance Modal -->
+<div class="modal fade" id="markAttendanceModal" tabindex="-1" aria-labelledby="markAttendanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'mark_attendance' %}">
+                {% csrf_token %}
+                <input type="hidden" name="attendance_id" id="attendanceId" value="">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="markAttendanceModalLabel">Mark Attendance</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="studentSelect" class="form-label">Student</label>
+                        <select class="form-select" id="studentSelect" name="student_id" required>
+                            <option value="" selected disabled>Select student</option>
+                            {% for student in students %}
+                            <option value="{{ student.id }}">{{ student.roll_no }} - {{ student.full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="status" id="statusPresent" value="present" checked>
+                            <label class="form-check-label" for="statusPresent">
+                                Present
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="status" id="statusLate" value="late">
+                            <label class="form-check-label" for="statusLate">
+                                Late
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="status" id="statusAbsent" value="absent">
+                            <label class="form-check-label" for="statusAbsent">
+                                Absent
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="attendanceNotes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="attendanceNotes" name="notes" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Handle edit attendance button clicks
+    document.querySelectorAll('.edit-attendance').forEach(button => {
+        button.addEventListener('click', function() {
+            const modal = new bootstrap.Modal(document.getElementById('markAttendanceModal'));
+            const studentId = this.getAttribute('data-student');
+            const status = this.getAttribute('data-status');
+            const notes = this.getAttribute('data-notes');
+            
+            // Set form values
+            document.getElementById('studentSelect').value = studentId;
+            document.getElementById('attendanceNotes').value = notes;
+            document.getElementById(`status${status.charAt(0).toUpperCase() + status.slice(1)}`).checked = true;
+            
+            // Change modal title
+            document.getElementById('markAttendanceModalLabel').textContent = 'Edit Attendance';
+            
+            // Show modal
+            modal.show();
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #3f51b5, #5c6bc0);
+      color: #fff;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #ffffff;
+      color: #333;
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
+      color: #3f51b5;
+    }
+
+    .highlight {
+      font-size: 1.1rem;
+      color: #444;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .info-box {
+      background: #f9f9f9;
+      padding: 1.5rem;
+      border-radius: 15px;
+      text-align: center;
+      border: 2px solid #e0e0e0;
+    }
+
+    .info-box h2 {
+      margin-bottom: 0.5rem;
+      color: #3f51b5;
+    }
+
+    .btn {
+      display: inline-block;
+      background-color: #3f51b5;
+      color: #fff;
+      padding: 0.7rem 1.5rem;
+      border: none;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: background 0.3s ease;
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .btn:hover {
+      background-color: #303f9f;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Hi, {{ request.user.first_name }} 👋</h1>
+    <p class="highlight">
+      <strong>Today's Status:</strong> <span style="color: green;">Present</span> <br>
+      <small>(Updated every morning)</small>
+    </p>
+
+    <div class="info-grid">
+      <div class="info-box">
+        <h2>Present Days</h2>
+        <p><strong>42</strong></p>
+      </div>
+      <div class="info-box">
+        <h2>Total Days</h2>
+        <p><strong>50</strong></p>
+      </div>
+      <div class="info-box">
+        <h2>Attendance %</h2>
+        <p><strong>84%</strong></p>
+      </div>
+      <div class="info-box">
+        <h2>Minimum Required</h2>
+        <p><strong>75%</strong></p>
+      </div>
+    </div>
+
+    <div style="text-align: center;">
+      <a href="#" class="btn">View Full Attendance</a>
+    </div>
+  </div>
+</body>
+</html>
