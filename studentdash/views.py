@@ -1,25 +1,33 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from datetime import date
+from attendance.models import Attendance
 
 @login_required
-def dashboard(request):
+def student_dashboard(request):
     user = request.user
+    today = date.today()
 
-    # Mock data for now — later connect with Attendance model
-    present_days = 42
-    total_days = 50
-    attendance_percent = round((present_days / total_days) * 100, 2)
-    
-    # Temporary logic: today is present if date is even, else absent
-    today_status = "Present" if date.today().day % 2 == 0 else "Absent"
+    # Today's status
+    try:
+        today_status = Attendance.objects.get(student=user, date=today).status
+    except Attendance.DoesNotExist:
+        today_status = "Not Marked"
+
+    # All attendance records of this student
+    all_attendance = Attendance.objects.filter(student=user)
+    total_days = all_attendance.count()
+    present_days = all_attendance.filter(status='present').count()
+
+    # Attendance percentage
+    attendance_percentage = round((present_days / total_days) * 100) if total_days > 0 else 0
 
     context = {
-        'user': user,
+        'today_status': today_status.capitalize(),
         'present_days': present_days,
         'total_days': total_days,
-        'attendance_percent': attendance_percent,
-        'today_status': today_status
+        'attendance_percentage': attendance_percentage,
+        'minimum_required': 75,
     }
 
-    return render(request, 'student/dashboard.html', context)
+    return render(request, 'studentdash/dashboard.html', context)

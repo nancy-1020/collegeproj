@@ -81,24 +81,39 @@
 </head>
 <body>
   <div class="container">
-    <h1>Hi, {{ request.user.first_name }} 👋</h1>
+    <h1>Hi, {{ request.user.full_name }} 👋</h1>
+
     <p class="highlight">
-      <strong>Today's Status:</strong> <span style="color: green;">Present</span> <br>
+      <strong>Today's Status:</strong>
+      <span style="color:
+        {% if today_status == 'present' %}
+          green
+        {% elif today_status == 'absent' %}
+          red
+        {% elif today_status == 'late' %}
+          orange
+        {% else %}
+          gray
+        {% endif %}
+      ;">
+        {{ today_status|capfirst }}
+      </span>
+      <br>
       <small>(Updated every morning)</small>
     </p>
 
     <div class="info-grid">
       <div class="info-box">
         <h2>Present Days</h2>
-        <p><strong>42</strong></p>
+        <p><strong>{{ present_days }}</strong></p>
       </div>
       <div class="info-box">
         <h2>Total Days</h2>
-        <p><strong>50</strong></p>
+        <p><strong>{{ total_days }}</strong></p>
       </div>
       <div class="info-box">
         <h2>Attendance %</h2>
-        <p><strong>84%</strong></p>
+        <p><strong>{{ attendance_percentage }}%</strong></p>
       </div>
       <div class="info-box">
         <h2>Minimum Required</h2>

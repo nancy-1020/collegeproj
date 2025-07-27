@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'core',
     'studentdash',
     'staffdash',
+    'attendance',
 
 
 ]

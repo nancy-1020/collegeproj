@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from .forms import LoginForm
 from core.models import CustomUser as User
+from django.contrib.auth import logout
 
 def login_view(request):
     if request.method == 'POST':
@@ -45,3 +46,7 @@ def login_view(request):
         form = LoginForm()
 
     return render(request, 'login.html', {'form': form})
+
+def logout_view(request):
+     logout(request)
+     return redirect('login') 
